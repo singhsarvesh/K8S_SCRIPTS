@@ -1,0 +1,286 @@
+
+StatefullSet: ---
+StatefulSets | Kubernetes
+A StatefulSet is a Kubernetes controller that is used to manage stateful applications. It is designed for workloads that require stable, unique network identifiers and stable storage. StatefulSets are particularly useful for applications like databases, message brokers, and other stateful services that need unique identities and persistent storage.
+
+Here's a detailed explanation of StatefulSets in Kubernetes:
+
+1. **Unique Network Identifiers:** StatefulSets provide a way to ensure that each pod in the set has a stable, unique network identifier. This is important for stateful applications because each pod typically needs to have a unique hostname, which remains constant even if the pod is rescheduled or scaled up or down.
+
+2. **Ordered Deployment:** StatefulSets guarantee a predictable pod order when deploying, scaling, or updating. Pods are created in order, starting with 0, and scaling up or down follows this sequence.
+
+3. **Persistent Storage:** StatefulSets enable you to use network-attached storage like Persistent Volumes (PVs) and Persistent Volume Claims (PVCs). Each pod in a StatefulSet can be associated with its own persistent storage, ensuring data persistence even when pods are rescheduled or recreated.
+
+4. **Headless Services:** By default, StatefulSets are associated with a Kubernetes Headless Service. This service does not load balance traffic to pods and provides DNS resolution for each pod using its unique hostname. This is useful for applications that require direct connections to specific pods.
+
+5. **Pod Identification:** StatefulSet pods are named using a stable and unique identifier, which includes the ordinal index (e.g., pod-0, pod-1) and a user-specified name.
+
+6. **Rolling Updates:** StatefulSets support rolling updates, which allow you to update the pods one at a time while maintaining their unique network identifiers and persistent storage.
+
+Here's an example of how to create a StatefulSet in Kubernetes using a YAML manifest:
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: my-statefulset
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-container
+        image: my-image:latest
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+In this example, we've created a StatefulSet named "my-statefulset" with three replicas. Each pod is associated with a Persistent Volume Claim named "data," which will provide each pod with 1Gi of storage. The pods are based on the "my-image:latest" container, and they have unique hostnames like "my-statefulset-0," "my-statefulset-1," etc.
+
+StatefulSets are a powerful tool for running stateful applications in Kubernetes, ensuring that each pod has a stable identity and access to persistent storage. They are essential for building reliable and scalable stateful workloads in a containerized environment.
+login as: ubuntu
+Authenticating with public key "imported-openssh-key"
+Welcome to Ubuntu 22.04.2 LTS (GNU/Linux 6.2.0-1012-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Tue Oct 17 11:12:54 UTC 2023
+
+  System load:  0.43115234375      Processes:              159
+  Usage of /:   34.0% of 13.39GB   Users logged in:        0
+  Memory usage: 21%                IPv4 address for eth0:  172.31.63.
+  Swap usage:   0%                 IPv4 address for tunl0: 192.168.14
+
+ * Ubuntu Pro delivers the most comprehensive open source security an
+   compliance features.
+
+   https://ubuntu.com/aws/pro
+
+Expanded Security Maintenance for Applications is not enabled.
+
+73 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+
+Last login: Tue Oct 17 07:07:55 2023 from 119.82.86.76
+ubuntu@ip-172-31-63-235:~$ sudo su
+root@ip-172-31-63-235:/home/ubuntu# ls
+1          map.yml           password.txt  pvc.yml       secret2.yml
+common.sh  map2.yml          pod1.yml      resquota.yml  svc.yml
+dev.yml    master.sh         pod2.yml      sample.conf   username.txt
+env.conf   metricserver.yml  pv.yml        secret.yml
+root@ip-172-31-63-235:/home/ubuntu# mkdir scaleset
+root@ip-172-31-63-235:/home/ubuntu# cd scaleset/
+root@ip-172-31-63-235:/home/ubuntu/scaleset# ls
+root@ip-172-31-63-235:/home/ubuntu/scaleset# vim pod1.yml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  serviceName: "nginx"
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.18
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: web
+---
+# Service Configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: nginx
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl apply -f pod1.ym
+statefulset.apps/web created
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+mydeploy-59cccdb94d-l827b   1/1     Running   0          45m
+web-0                       1/1     Running   0          9s
+web-1                       1/1     Running   0          8s
+web-2                       1/1     Running   0          7s
+web-3                       1/1     Running   0          6s
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+mydeploy-59cccdb94d-l827b   1/1     Running   0          56m
+web-0                       1/1     Running   0          11m
+web-1                       1/1     Running   0          11m
+web-2                       1/1     Running   0          11m
+web-3                       1/1     Running   0          11m
+root@ip-172-31-63-235:/home/ubuntu/scaleset# watch -n 1 'kubectl get pods'
+
+[1]+  Stopped                 watch -n 1 'kubectl get pods'
+root@ip-172-31-63-235:/home/ubuntu/scaleset# watch -n 3 'kubectl get pods'
+
+[2]+  Stopped                 watch -n 3 'kubectl get pods'
+root@ip-172-31-63-235:/home/ubuntu/scaleset#
+root@ip-172-31-63-235:/home/ubuntu/scaleset#
+root@ip-172-31-63-235:/home/ubuntu/scaleset# watch -n 1 'kubectl get
+
+[3]+  Stopped                 watch -n 1 'kubectl get pods'
+root@ip-172-31-63-235:/home/ubuntu/scaleset#
+root@ip-172-31-63-235:/home/ubuntu/scaleset#
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl delete -f pod1.y
+statefulset.apps "web" deleted
+root@ip-172-31-63-235:/home/ubuntu/scaleset# vim pod1.yml
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl apply -f pod1.ym
+statefulset.apps/web created
+service/nginx created
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+mydeploy-59cccdb94d-l827b   1/1     Running   0          62m
+web-0                       1/1     Running   0          7s
+web-1                       1/1     Running   0          5s
+web-2                       1/1     Running   0          4s
+web-3                       1/1     Running   0          3s
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl delete deploy my
+deployment.apps "mydeploy" deleted
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get svc
+NAME                  TYPE           CLUSTER-IP   EXTERNAL-IP   PORT(
+kubernetes            ClusterIP      10.96.0.1    <none>        443/T
+my-external-service   ExternalName   <none>       example.com   <none
+nginx                 ClusterIP      None         <none>        80/TC
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get sts -o wide
+NAME   READY   AGE     CONTAINERS   IMAGES
+web    4/4     8m58s   nginx        nginx
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl scale --replicas
+statefulset.apps/web scaled
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get sts -o wide
+NAME   READY   AGE     CONTAINERS   IMAGES
+web    0/0     9m27s   nginx        nginx
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get pods
+No resources found in default namespace.
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get sts -o wide
+NAME   READY   AGE   CONTAINERS   IMAGES
+web    0/0     13m   nginx        nginx
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl scale –replicas 1 sts web
+statefulset.apps/web scaled
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get pods
+NAME    READY   STATUS              RESTARTS   AGE
+web-0   1/1     Running             0          4s
+web-1   1/1     Running             0          3s
+web-2   1/1     Running             0          2s
+web-3   0/1     ContainerCreating   0          1s
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl scale –replicas 0 sts web
+statefulset.apps/web scaled
+or
+kubectl scale --replicas 0 sts web
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get pods
+NAME    READY   STATUS        RESTARTS   AGE
+web-0   1/1     Running       0          26s
+web-1   1/1     Terminating   0          25s
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl delete -f pod1.y
+statefulset.apps "web" deleted
+service "nginx" deleted
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl apply -f pod1.ym
+statefulset.apps/web created
+service/nginx created
+root@ip-172-31-63-235:/home/ubuntu/scaleset#                         root@ip-172-31-63-235:/home/ubuntu/scaleset# vim pod1.yml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  serviceName: "nginx"
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.18
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: web
+---
+# Service Configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: nginx
+root@ip-172-31-63-235:/home/ubuntu/scaleset#                         root@ip-172-31-63-235:/home/ubuntu/scaleset#                         root@ip-172-31-63-235:/home/ubuntu/scaleset#                         root@ip-172-31-63-235:/home/ubuntu/scaleset#  kubectl apply -f pod1.yml
+statefulset.apps/web configured
+service/nginx unchanged
+root@ip-172-31-63-235:/home/ubuntu/scaleset# kubectl get sts -o wide 
+NAME   READY   AGE     CONTAINERS   IMAGES
+web    4/4     3m10s   nginx        nginx:1.18
+root@ip-172-31-63-235:/home/ubuntu/scaleset#
+
+now see the dns records  of pods: ---
+root@ip-172-31-63-235:/home/ubuntu# kubectl get svc -n kube-system
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                  AGE
+kube-dns         ClusterIP   10.96.0.10      <none>        53/UDP,53/TCP,9153/TCP   11d
+metrics-server   ClusterIP   10.106.222.76   <none>        443/TCP                  27h
+
+now create busybox: ---
+root@ip-172-31-63-235:/home/ubuntu# vim busybox.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox
+  namespace: default
+spec:
+  containers:
+  - name: busybox
+    image: busybox:1.28
+    command:
+      - sleep
+      - "3600"
+    imagePullPolicy: IfNotPresent
+  restartPolicy: Always
+root@ip-172-31-63-235:/home/ubuntu# kubectl apply -f busybox.yml
+
