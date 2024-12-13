@@ -1,0 +1,228 @@
+HELM:--
+Helm is a package manager for Kubernetes that allows developers and operators to more easily package, configure, and deploy applications and services onto Kubernetes clusters.
+
+Helm is now an official Kubernetes project and is part of the Cloud Native Computing Foundation, a non-profit that supports open source projects in and around the Kubernetes ecosystem
+
+Most every programming language and operating system has its own package manager to help with the installation and maintenance of software. Helm provides the same basic feature set as many of the package managers you may already be familiar with, such as Debian’s apt, or Python’s pip and RedHat’s yum.
+Helm can:
+•	Automated Installation of software.
+•	Automatically install software dependencies.
+•	Version management(software update)
+•	Upgrade software.
+•	Configure software deployments.
+•	Remove softwares 
+•	Fetch software packages from repositories.
+HELM CHART:---
+•	Helm packages are called charts, and they consist of a few YAML configuration files and some templates that are rendered into Kubernetes manifest files. Here is the basic directory structure of a chart:
+•	Example chart directory
+•	package-name/
+•	  charts/
+•	  templates/
+•	  Chart.yaml
+•	  LICENSE
+•	  README.md
+•	  requirements.yaml
+•	  values.yaml
+Chart Repositories
+A Helm chart repo is a simple HTTP site that serves an index.yaml file and .tar.gz packaged charts. The helm command has subcommands available to help package charts and create the required index.yaml file. These files can be served by any web server, object storage service, or a static site host such as GitHub Pages.
+Helm comes preconfigured with a default chart repository, referred to as stable. This repo points to a Google Storage bucket at https://kubernetes-charts.storage.googleapis.com. The source for the stable repo can be found in the helm/charts Git repository on GitHub.
+Alternate repos can be added with the helm repo add command. Some popular alternate repositories are:
+•	The official incubator repo that contains charts that are not yet ready for stable. Instructions for using incubator can be found on the official Helm charts GitHub page.
+•	Bitnami Helm Charts which provide some charts that aren’t covered in the official stable repo.
+Whether you’re installing a chart you’ve developed locally, or one from a repo, you’ll need to configure it for your particular setup. We’ll look into configs next.
+
+Whether you’re installing a chart you’ve developed locally, or one from a repo, you’ll need to configure it for your particular setup. We’ll look into configs next
+HELM: --
+The package manager for Kubernetes
+
+Helm is the best way to find, share, and use software built for Kubernetes
+Helm helps you manage Kubernetes applications 
+— Helm Charts help you define, install, and upgrade even the most coHelm helps you manage Kubernetes applications 
+—	Helm Charts help you define, install, and upgrade even the most complex Kubernetes application.
+Charts are easy to create, version, share, and publish — so start using Helm and stop the copy-and-paste.
+mplex Kubernetes application.
+Charts are easy to create, version, share, and publish — so start using Helm and stop the copy-and-paste.
+Helm Architecture
+This document describes the Helm architecture at a high level.
+The Purpose of Helm
+Helm is a tool for managing Kubernetes packages called charts. Helm can do the following:
+•	Create new charts from scratch
+•	Package charts into chart archive (tgz) files
+•	Interact with chart repositories where charts are stored
+•	Install and uninstall charts into an existing Kubernetes cluster
+•	Manage the release cycle of charts that have been installed with Helm
+For Helm, there are three important concepts:
+1.	The chart is a bundle of information necessary to create an instance of a Kubernetes application.
+2.	The config contains configuration information that can be merged into a packaged chart to create a releasable object.
+3.	A release is a running instance of a chart, combined with a specific config.
+Components
+Helm is an executable which is implemented into two distinct parts:
+The Helm Client is a command-line client for end users. The client is responsible for the following:
+•	Local chart development
+•	Managing repositories
+•	Managing releases
+•	Interfacing with the Helm library
+•	Sending charts to be installed
+•	Requesting upgrading or uninstalling of existing releases
+The Helm Library provides the logic for executing all Helm operations. It interfaces with the Kubernetes API server and provides the following capability:
+•	Combining a chart and configuration to build a release
+•	Installing charts into Kubernetes, and providing the subsequent release object
+•	Upgrading and uninstalling charts by interacting with Kubernetes
+The standalone Helm library encapsulates the Helm logic so that it can be leveraged by different clients.
+Implementation
+The Helm client and library is written in the Go programming language.
+The library uses the Kubernetes client library to communicate with Kubernetes. Currently, that library uses REST+JSON. It stores information in Secrets located inside of Kubernetes. It does not need its own database.
+Configuration files are, when possible, written in YAML.
+To install the HELM fallow below given link: --
+Helm | Installing Helm
+Installing Helm on a Kubernetes cluster involves a few straightforward steps. Helm is a package manager for Kubernetes that simplifies deploying and managing applications. Here's a basic guide to installing Helm:
+
+### Step 1: Install the Helm CLI on Your Local Machine
+
+You can install Helm by downloading the binary for your operating system from the official Helm GitHub repository: [Helm Releases](https://github.com/helm/helm/releases).
+
+For example, on Linux, you might use the following commands:
+
+```bash
+# Download the Helm binary
+wget https://get.helm.sh/helm-v3.7.0-linux-amd64.tar.gz
+
+# Extract the tarball
+tar -zxvf helm-v3.7.0-linux-amd64.tar.gz
+
+# Move the helm binary to a directory in your PATH
+sudo mv linux-amd64/helm /usr/local/bin/helm
+```
+
+### Step 2: Initialize Helm on Your Kubernetes Cluster
+
+Once Helm is installed, you need to initialize Helm in your Kubernetes cluster. This step installs Tiller, the server-side component of Helm, into your cluster:
+
+```bash
+helm init
+```
+
+### Step 3: Verify the Installation
+
+Check that Helm is properly installed by running the following command:
+
+```bash
+helm version
+```
+
+This command should display the client and server versions, indicating that Helm is successfully connected to your Kubernetes cluster.
+
+### Step 4: (Optional) Update Helm Repositories
+
+Helm uses repositories to store and retrieve charts. The official Helm repository contains a variety of charts. Update the repositories to make sure you have the latest information:
+
+```bash
+helm repo update
+```
+
+### Step 5: Use Helm to Install Charts
+
+Now that Helm is installed, you can use it to install charts (packages of pre-configured Kubernetes resources). For example, to install the Nginx Ingress Controller, you can use the following command:
+
+```bash
+helm install nginx-ingress stable/nginx-ingress
+```
+
+Replace `nginx-ingress` with the desired release name.
+
+### Step 6: (Optional) Explore Helm Commands
+
+Helm provides various commands for managing charts and releases. You can explore these commands by running:
+
+The error message indicates that the OCI (Open Container Initiative) support in Helm is considered experimental, and it needs to be explicitly enabled by setting the `HELM_EXPERIMENTAL_OCI` environment variable to `1`. To resolve this issue, you can follow these steps:
+
+1. **Set the HELM_EXPERIMENTAL_OCI environment variable:**
+
+   Before running the `helm install` command, set the `HELM_EXPERIMENTAL_OCI` environment variable:
+
+   ```bash
+
+311  export HELM_EXPERIMENTAL_OCI=1
+   ```
+
+2. **Run the Helm Install Command:**
+
+   After setting the environment variable, try running the `helm install` command again:
+
+   ```bash
+   helm install my-release oci://registry-1.docker.io/bitnamicharts/nginx
+   ```
+
+   Replace `my-release` with the desired release name.
+
+This should allow Helm to use the OCI registry feature for pulling charts from container registries.
+
+Note: Experimental features are subject to change and may not be suitable for production use. Always refer to the official Helm documentation for the latest information and best practices: [Helm Documentation](https://helm.sh/docs/).
+
+```bash
+helm --help
+```
+
+This will display a list of available commands and their descriptions.
+
+Remember that Helm has undergone significant changes in version 3, and the above steps are tailored for Helm 3. If you're using Helm 2, the commands would be slightly different. Always refer to the official Helm documentation for the most accurate and up-to-date information: [Helm Documentation](https://helm.sh/docs/).
+
+
+
+Now create a HELM chart and deploy it:--
+315  helm create mynginx
+To describe the HELM Chart: --
+root@ip-172-31-48-79:/home/ubuntu# helm show all mynginx
+Now list the HELM chart
+  316  helm list
+Install the Helm Chart
+Navigate to the directory containing your Helm chart (mynginx) and install it:
+
+  317  helm install mynginx ./mynginx
+  318  helm list
+  319  kubectl get all
+  321  kubectl get pods
+  322  history
+To publish the service: ---
+root@ip-172-31-48-79:/home/ubuntu# ls
+'!'                               master.sh          password.txt
+ 1                                metricserver.yml   pod1.yml
+ common.sh                        my-tomcat-chart    username.txt
+ helm-v3.7.0-linux-amd64.tar.gz   mynginx
+ linux-amd64                      ns.yml
+root@ip-172-31-48-79:/home/ubuntu# cd mynginx/
+root@ip-172-31-48-79:/home/ubuntu/mynginx# ls
+Chart.yaml  charts  templates  values.yaml
+root@ip-172-31-48-79:/home/ubuntu/mynginx# vim values.yaml
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: NodePort
+  port: 8080
+
+ingress:
+  enabled: false
+  className: ""
+root@ip-172-31-48-79:/home/ubuntu/mynginx#
+After editing then install the chart: ---
+root@ip-172-31-48-79:/home/ubuntu# helm install mynginx ./mynginx
+NAME: mynginx
+LAST DEPLOYED: Wed Jan 24 09:46:49 2024
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services mynginx)
+  export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+root@ip-172-31-48-79:/home/ubuntu# kubectl get svc
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+kubernetes   ClusterIP   10.96.0.1      <none>        443/TCP          9d
+mynginx      NodePort    10.100.96.76   <none>        8080:32437/TCP   15s
+To uninstall with HELM CHART:-
+
+
+root@ip-172-31-88-233:/home/ubuntu# helm uninstall mynginx
+
